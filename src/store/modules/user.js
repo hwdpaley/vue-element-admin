@@ -50,9 +50,16 @@ const user = {
       return new Promise((resolve, reject) => {
         loginByUsername(username, userInfo.password).then(response => {
           const data = response.data
-          commit('SET_TOKEN', data.token)
-          setToken(response.data.token)
-          resolve()
+          if (!data) {
+            console.log('reject', '非法用户名或密码')
+            reject(new Error('非法用户名或密码'))
+            // throw new Error('非法用户名或密码')
+          } else {
+            console.log('response', response)
+            commit('SET_TOKEN', data.token)
+            setToken(response.data.token)
+            resolve()
+          }
         }).catch(error => {
           reject(error)
         })

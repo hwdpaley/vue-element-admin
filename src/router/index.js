@@ -135,7 +135,8 @@ export const asyncRouterMap = [
         component: () => import('@/views/permission/directive'),
         name: 'DirectivePermission',
         meta: {
-          title: 'directivePermission'
+          title: 'directivePermission',
+          roles: ['editor']
           // if do not set roles, means: this page does not require permission
         }
       }
@@ -336,10 +337,18 @@ export const asyncRouterMap = [
   {
     path: 'external-link',
     component: Layout,
+    meta: {
+      title: 'external-link',
+      icon: 'lock',
+      roles: ['editor'] // you can set roles in root nav
+    },
     children: [
       {
         path: 'https://github.com/PanJiaChen/vue-element-admin',
-        meta: { title: 'externalLink', icon: 'link' }
+        meta: {
+          title: 'externalLink',
+          icon: 'link'
+        }
       }
     ]
   },
