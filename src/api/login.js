@@ -6,29 +6,24 @@ export function loginByUsername(username, password) {
     password
   }
   return request({
-    url: '/auth/login',
-    method: 'POST',
+    url: '/login/login',
+    method: 'post',
     data
   })
 }
 
-export function logout(token) {
+export function logout() {
   return request({
-    url: '/auth/logout',
-    method: 'post',
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
+    url: '/login/logout',
+    method: 'post'
   })
 }
 
 export function getUserInfo(token) {
   return request({
-    url: '/auth/info',
+    url: '/user/info',
     method: 'get',
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
+    params: { token }
   })
 }
 
