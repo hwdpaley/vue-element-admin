@@ -216,3 +216,14 @@ Detailed changes for each release are documented in the [release notes](https://
 [MIT](https://github.com/PanJiaChen/vue-element-admin/blob/master/LICENSE)
 
 Copyright (c) 2017-present PanJiaChen
+
+导出users表
+mongoexport -h 127.0.0.1 -p 27017 -d trello_clone_server -c users -o ~/Desktop/users.json
+倒入表
+mongoimport -h 127.0.0.1 -p 26379 -d trello_clone_server -c users --file ~/Desktop/users.json
+导出数据库:
+mongodump -h 127.0.0.1 -p 27017 -d trello_clone_server  -o ~/Desktop/
+导出集合
+mongodump -h 127.0.0.1 -p 27017 -d trello_clone_server -c users -o ~/Desktop/
+恢复数据库:
+mongorestore -h 127.0.0.1 -p 27017 -d trello_clone_server  --dir ~/Desktop/trello_clone_server/

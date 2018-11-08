@@ -1,6 +1,6 @@
 import Vue from 'vue'
 
-import Cookies from 'js-cookie'
+// import Cookies from 'js-cookie'
 
 import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 
@@ -20,9 +20,13 @@ import './permission' // permission control
 import './mock' // simulation data
 
 import * as filters from './filters' // global filters
+import VueAwesomeSwiper from 'vue-awesome-swiper';
+import 'swiper/dist/css/swiper.css';
+
+Vue.use(VueAwesomeSwiper);
 
 Vue.use(Element, {
-  size: Cookies.get('size') || 'medium', // set element-ui default size
+  size: localStorage.getItem('size') || 'medium', // set element-ui default size
   i18n: (key, value) => i18n.t(key, value)
 })
 
@@ -38,5 +42,9 @@ new Vue({
   router,
   store,
   i18n,
-  render: h => h(App)
+  render: h => h(App),
+  created() {
+    console.log('main');
+    // this.$store.dispatch("setLanguage", 'zh');
+  }
 })

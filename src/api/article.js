@@ -15,6 +15,13 @@ export function fetchArticle(id) {
     params: { id }
   })
 }
+export function fetchGroups(query) {
+  return request({
+    url: '/groups',
+    method: 'get',
+    params: {}
+  })
+}
 
 export function fetchPv(pv) {
   return request({

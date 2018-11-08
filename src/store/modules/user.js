@@ -1,9 +1,11 @@
 import { loginByUsername, logout, getUserInfo } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
+import service from "../feathers/feathers-client";
 
 const user = {
+  // namespaced: true,
   state: {
-    user: '',
+    user: null,
     status: '',
     code: '',
     token: getToken(),
@@ -11,6 +13,8 @@ const user = {
     avatar: '',
     introduction: '',
     roles: [],
+    groupsin: [],
+    allgroups: [],
     setting: {
       articlePlatform: []
     }
@@ -40,6 +44,15 @@ const user = {
     },
     SET_ROLES: (state, roles) => {
       state.roles = roles
+    },
+    SET_USER: (state, user) => {
+      state.user = user
+      state.roles = user.roles
+      // console.log('SET_USER', state.user);
+    },
+    SET_GROUP: (state, group) => {
+      state.groupsin = group.groupsin
+      state.allgroups = group.allgroups
     }
   },
 
@@ -69,11 +82,11 @@ const user = {
     // 获取用户信息
     GetUserInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
-        getUserInfo(state.token).then(response => {
-          if (!response.data) { // 由于mockjs 不支持自定义状态码只能这样hack
-            reject('error')
-          }
-          const data = response.data
+        getUserInfo(state.token).then(data => {
+          // if (!data.data) { // 由于mockjs 不支持自定义状态码只能这样hack
+          //   reject('error')
+          // }
+          // const data = response
 
           if (data.roles && data.roles.length > 0) { // 验证返回的roles是否是一个非空数组
             commit('SET_ROLES', data.roles)
@@ -81,10 +94,10 @@ const user = {
             reject('getInfo: roles must be a non-null array !')
           }
 
-          commit('SET_NAME', data.name)
-          commit('SET_AVATAR', data.avatar)
-          commit('SET_INTRODUCTION', data.introduction)
-          resolve(response)
+          commit('SET_NAME', data.displayName)
+          commit('SET_AVATAR', data.imageUrl)
+          commit('SET_INTRODUCTION', data.phone)
+          resolve(data)
         }).catch(error => {
           reject(error)
         })
@@ -134,15 +147,65 @@ const user = {
         commit('SET_TOKEN', role)
         setToken(role)
         getUserInfo(role).then(response => {
-          const data = response.data
+          const data = response
           commit('SET_ROLES', data.roles)
-          commit('SET_NAME', data.name)
-          commit('SET_AVATAR', data.avatar)
-          commit('SET_INTRODUCTION', data.introduction)
+          commit('SET_NAME', data.displayName)
+          commit('SET_AVATAR', data.imageUrl)
+          commit('SET_INTRODUCTION', data.displayName)
           dispatch('GenerateRoutes', data) // 动态修改权限后 重绘侧边菜单
           resolve()
         })
       })
+    },
+    setuserToken({ commit }, token) {
+      commit('SET_TOKEN', token);
+    },
+    setUser({ commit }, user) {
+      commit('SET_USER', user);
+    },
+    setNewGroups({ commit }, group) {
+      commit('SET_GROUP', {
+        groupsin: group.groupsin,
+        allgroups: group.allgroups
+      });
+    },
+    setGroups({ commit }, groupId) {
+      const allgroups = [];
+      const groupsin = [];
+      const gid = groupId;
+      service.service('groups').find({ query: { _id: gid }}).then(myg => {
+        allgroups.push({
+          _id: myg.data[0]._id,
+          name: myg.data[0].groupName
+        });
+        groupsin.push(myg.data[0]._id);
+        service.service('groups').find({ query: { pId: gid }})
+          .then(gs => {
+            // this.allupgroups.push({ _id: "1234567890", name: "顶级" });
+            gs.data.forEach(item => {
+              allgroups.push({ _id: item._id, name: item.groupName });
+              groupsin.push(item._id);
+              service.service('groups').find({ query: { pId: item._id }}).then(g2 => {
+                g2.data.forEach(item2 => {
+                  allgroups.push({
+                    _id: item2._id,
+                    name: item2.groupName
+                  });
+                  groupsin.push(item2._id);
+                });
+              });
+            });
+            console.log("groupsin", groupsin);
+            console.log("allgroups", allgroups);
+            commit('SET_GROUP', {
+              groupsin: groupsin,
+              allgroups: allgroups
+            });
+          })
+          .catch(err => {
+            this.$message.error(err.message);
+          });
+      });
     }
   }
 }

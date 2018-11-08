@@ -43,19 +43,28 @@ const permission = {
     SET_ROUTERS: (state, routers) => {
       state.addRouters = routers
       state.routers = constantRouterMap.concat(routers)
+      console.log('SET_ROUTERS', state.routers);
+    },
+    SET_NO_ROUTERS: (state, routers) => {
+      // state.addRouters = routers
+      state.routers = constantRouterMap
+      console.log('SET_ROUTERS', state.routers);
     }
   },
   actions: {
     GenerateRoutes({ commit }, data) {
       return new Promise(resolve => {
         const { roles } = data
+        console.log('GenerateRoutes------', roles);
         let accessedRouters
         if (roles.includes('admin')) {
           accessedRouters = asyncRouterMap
+          commit('SET_ROUTERS', accessedRouters)
         } else {
           accessedRouters = filterAsyncRouter(asyncRouterMap, roles)
+          commit('SET_NO_ROUTERS', accessedRouters)
         }
-        commit('SET_ROUTERS', accessedRouters)
+        console.log('accessedRouters', accessedRouters);
         resolve()
       })
     }

@@ -1,0 +1,11 @@
+{
+  "apps": [
+    {
+      "name": "vue-admin",
+      "script": "npm",
+      "args": "dev",
+      "cwd": "/root/vue-admin",
+      "exec_mode": "cluster"
+    }
+  ]
+}

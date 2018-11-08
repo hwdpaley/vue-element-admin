@@ -147,6 +147,7 @@ module.exports = {
     'no-useless-computed-key': 2,
     'no-useless-constructor': 2,
     'no-useless-escape': 0,
+    'object-curly-spacing': 2,
     'no-whitespace-before-property': 2,
     'no-with': 2,
     'one-var': [2, {

@@ -1,17 +1,20 @@
-import Cookies from 'js-cookie'
+// import Cookies from 'js-cookie'
 
-const TokenKey = 'Admin-Token'
+const TokenKey = 'feathers-jwt'
 
 export function getToken() {
-  return Cookies.get(TokenKey)
+  return localStorage.getItem(TokenKey);
+  // return Cookies.get(TokenKey)
 }
 
 export function setToken(token) {
   // localStorage.token = token;
-  return Cookies.set(TokenKey, token)
+  return localStorage.setItem(TokenKey, token);
+  // return Cookies.set(TokenKey, token)
 }
 
 export function removeToken() {
   // localStorage.token='';
-  return Cookies.remove(TokenKey)
+  return localStorage.removeItem(TokenKey);
+  // return Cookies.remove(TokenKey)
 }

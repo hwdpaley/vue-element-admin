@@ -3,9 +3,9 @@
     <div class="sign-btn" @click="wechatHandleClick('wechat')">
       <span class="wx-svg-container"><svg-icon icon-class="wechat" class="icon"/></span> 微信
     </div>
-    <div class="sign-btn" @click="tencentHandleClick('tencent')">
+    <!-- <div class="sign-btn" @click="tencentHandleClick('tencent')">
       <span class="qq-svg-container"><svg-icon icon-class="qq" class="icon"/></span> QQ
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -17,19 +17,23 @@ export default {
   methods: {
     wechatHandleClick(thirdpart) {
       // alert('ok')
-      this.$store.commit("SET_AUTH_TYPE", thirdpart);
-      const appid = "wxff207314e16710d9";
-      const redirect_uri = encodeURIComponent(
-        "http://ketang.gzxinibo.com/redirect?redirect=" +
-          window.location.origin +
-          "/auth-redirect"
-      );
+      console.log(window.location.origin);
+
+      // this.$store.commit("SET_AUTH_TYPE", thirdpart);
+      const appid = "wx444ef28c6353448f";
+      // const redirect_uri = encodeURIComponent(
+      //   "http://ketang.gzxinbibo.com/redirect?redirect=" +
+      //     window.location.origin +
+      //     "/auth-redirect"
+      // );
+      const redirect_uri = "http://ketang.gzxinbibo.com";
       const url =
         "https://open.weixin.qq.com/connect/qrconnect?appid=" +
         appid +
         "&redirect_uri=" +
         redirect_uri +
         "&response_type=code&scope=snsapi_login#wechat_redirect";
+      // console.log(url);
       openWindow(url, thirdpart, 540, 540);
     },
     tencentHandleClick(thirdpart) {

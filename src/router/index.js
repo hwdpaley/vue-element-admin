@@ -10,6 +10,8 @@ import Layout from '@/views/layout/Layout'
 import componentsRouter from './modules/components'
 import chartsRouter from './modules/charts'
 import tableRouter from './modules/table'
+import setupRouter from './modules/setup'
+import memberRouter from './modules/member'
 import nestedRouter from './modules/nested'
 
 /** note: Submenu only appear when children.length>=1
@@ -63,13 +65,41 @@ export const constantRouterMap = [
     hidden: true
   },
   {
-    path: '',
+    path: '/',
     component: Layout,
-    redirect: 'dashboard',
+    redirect: '/shouye',
+    children: [
+      {
+        path: 'shouye',
+        component: () => import('@/views/shouye/index'),
+        name: 'Shouye',
+        meta: { title: 'shouye', icon: 'dashboard', noCache: true }
+      }
+    ]
+  },
+  {
+    path: '/xssl',
+    component: Layout,
+    redirect: '/xssl',
+    children: [
+      {
+        path: 'xssl',
+        component: () => import('@/views/setups/xssl'),
+        name: 'Newmen',
+        meta: { title: 'Newmen', icon: 'dashboard', noCache: true }
+      }
+    ]
+  },
+  setupRouter,
+  memberRouter,
+  {
+    path: '/dashboard',
+    component: Layout,
+    redirect: '/dashboard/index',
     children: [
       {
         path: 'dashboard',
-        component: () => import('@/views/dashboard/index'),
+        component: () => import('@/views/shouye/main'),
         name: 'Dashboard',
         meta: { title: 'dashboard', icon: 'dashboard', noCache: true }
       }
@@ -118,7 +148,7 @@ export const asyncRouterMap = [
     meta: {
       title: 'permission',
       icon: 'lock',
-      roles: ['admin', 'editor'] // you can set roles in root nav
+      roles: ['admin', 'mdadmin'] // you can set roles in root nav
     },
     children: [
       {
@@ -161,7 +191,6 @@ export const asyncRouterMap = [
   chartsRouter,
   nestedRouter,
   tableRouter,
-
   {
     path: '/example',
     component: Layout,
@@ -334,24 +363,24 @@ export const asyncRouterMap = [
     ]
   },
 
-  {
-    path: 'external-link',
-    component: Layout,
-    meta: {
-      title: 'external-link',
-      icon: 'lock',
-      roles: ['editor'] // you can set roles in root nav
-    },
-    children: [
-      {
-        path: 'https://github.com/PanJiaChen/vue-element-admin',
-        meta: {
-          title: 'externalLink',
-          icon: 'link'
-        }
-      }
-    ]
-  },
+  // {
+  //   path: 'external-link',
+  //   component: Layout,
+  //   meta: {
+  //     title: 'external-link',
+  //     icon: 'lock',
+  //     roles: ['editor'] // you can set roles in root nav
+  //   },
+  //   children: [
+  //     {
+  //       path: 'https://github.com/PanJiaChen/vue-element-admin',
+  //       meta: {
+  //         title: 'externalLink',
+  //         icon: 'link'
+  //       }
+  //     }
+  //   ]
+  // },
 
   { path: '*', redirect: '/404', hidden: true }
 ]

@@ -37,7 +37,11 @@
         </span>
       </el-form-item>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">{{ $t('login.logIn') }}</el-button>
+      <el-button
+        :loading="loading"
+        type="primary"
+        style="width:100%;margin-bottom:30px;"
+        @click.native.prevent="handleLogin">{{ $t('login.logIn') }}</el-button>
 
       <!-- <div class="tips">
         <span>{{ $t('login.username') }} : admin</span>
@@ -63,10 +67,11 @@
 </template>
 
 <script>
+import { mapState, mapActions } from "vuex";
 import { isvalidUsername } from "@/utils/validate";
 import LangSelect from "@/components/LangSelect";
 import SocialSign from "./socialsignin";
-
+// import { setToken } from "@/utils/auth";
 export default {
   name: "Login",
   components: { LangSelect, SocialSign },
@@ -79,16 +84,16 @@ export default {
       }
     };
     const validatePassword = (rule, value, callback) => {
-      if (value.length < 6) {
-        callback(new Error("密码最少必须6个数字"));
+      if (value.length < 2) {
+        callback(new Error("密码最少必须2个数字"));
       } else {
         callback();
       }
     };
     return {
       loginForm: {
-        username: "admin",
-        password: "1234567890"
+        username: "",
+        password: ""
       },
       loginRules: {
         username: [
@@ -104,6 +109,9 @@ export default {
       redirect: undefined
     };
   },
+  computed: {
+    ...mapState("auth", { user: "payload" })
+  },
   watch: {
     $route: {
       handler: function(route) {
@@ -113,12 +121,15 @@ export default {
     }
   },
   created() {
-    // window.addEventListener('hashchange', this.afterQRScan)
+    // window.addEventListener("hashchange", this.afterQRScan);
   },
   destroyed() {
     // window.removeEventListener('hashchange', this.afterQRScan)
   },
+
   methods: {
+    ...mapActions("localAuth", ["login", "logout"]),
+    ...mapActions("groups", { findGroups: "find" }),
     showPwd() {
       if (this.passwordType === "password") {
         this.passwordType = "";
@@ -130,15 +141,33 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true;
-          this.$store
-            .dispatch("LoginByUsername", this.loginForm)
-            .then(() => {
+          // this.$store
+          //   .dispatch("LoginByUsername", this.loginForm)
+          this.login({ user: this.loginForm })
+            .then(user => {
               // console.log("user", user);
+              console.log("long vue  user", user);
+              if (!user.roles || user.roles.length === 0) {
+                user.roles = ["admin"];
+                console.log("add  user  roles", user.roles);
+              }
+              // console.log("login user", this.user.user);
+              this.$store.dispatch("setUser", user);
+              this.$store.dispatch("setGroups", user.groupId);
+              // this.getAllGroups(user);
+              // this.$store.dispatch("setuserToken", result.accessToken);
+              // setToken(result.accessToken);
               this.loading = false;
-              this.$router.push({ path: this.redirect || "/" });
+              var sy = "/shouye";
+              if (this.redirect && this.redirect !== "/404") {
+                sy = this.redirect;
+              }
+              // console.log("shouye", this.redirect || "/shouye");
+              this.$router.push({ path: sy });
             })
             .catch(err => {
               console.log("err", err);
+              this.$message.error(err.message);
               this.loading = false;
             });
         } else {
@@ -147,22 +176,60 @@ export default {
         }
       });
     },
+    getAllGroups(user) {
+      const allgroups = [];
+      const groupsin = [];
+      const gid = user.groupId;
+      this.findGroups({ query: { _id: gid }}).then(myg => {
+        allgroups.push({
+          _id: myg.data[0]._id,
+          name: myg.data[0].groupName
+        });
+        groupsin.push(myg.data[0]._id);
+        this.findGroups({ query: { pId: gid }})
+          .then(gs => {
+            // this.allupgroups.push({ _id: "1234567890", name: "顶级" });
+            gs.data.forEach(item => {
+              allgroups.push({ _id: item._id, name: item.groupName });
+              groupsin.push(item._id);
+              this.findGroups({ query: { pId: item._id }}).then(g2 => {
+                g2.data.forEach(item2 => {
+                  allgroups.push({
+                    _id: item2._id,
+                    name: item2.groupName
+                  });
+                  groupsin.push(item2._id);
+                });
+              });
+            });
+            console.log("groupsin", groupsin);
+            console.log("allgroups", allgroups);
+            this.$store.dispatch("setGroups", {
+              groupsin: groupsin,
+              allgroups: allgroups
+            });
+          })
+          .catch(err => {
+            this.$message.error(err.message);
+          });
+      });
+    },
     afterQRScan() {
-      // const hash = window.location.hash.slice(1)
-      // const hashObj = getQueryObject(hash)
-      // const originUrl = window.location.origin
-      // history.replaceState({}, '', originUrl)
+      // const hash = window.location.hash.slice(1);
+      // const hashObj = getQueryObject(hash);
+      // const originUrl = window.location.origin;
+      // history.replaceState({}, "", originUrl);
       // const codeMap = {
-      //   wechat: 'code',
-      //   tencent: 'code'
-      // }
-      // const codeName = hashObj[codeMap[this.auth_type]]
+      //   wechat: "code",
+      //   tencent: "code"
+      // };
+      // const codeName = hashObj[codeMap[this.auth_type]];
       // if (!codeName) {
-      //   alert('第三方登录失败')
+      //   alert("第三方登录失败");
       // } else {
-      //   this.$store.dispatch('LoginByThirdparty', codeName).then(() => {
-      //     this.$router.push({ path: '/' })
-      //   })
+      //   this.$store.dispatch("LoginByThirdparty", codeName).then(() => {
+      //     this.$router.push({ path: "/" });
+      //   });
       // }
     }
   }
@@ -280,7 +347,7 @@ $light_gray: #eee;
   .thirdparty-button {
     position: absolute;
     right: 35px;
-    bottom: 28px;
+    // bottom: 28px;
   }
 }
 </style>
